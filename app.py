@@ -1,5 +1,7 @@
 import flet as ft
-
+import pymssql
+conn=pymssql.connect(server='M1503QA', user=None, password=None,autocommit=True, database='port')
+cursor = conn.cursor()
 def main(page: ft.Page):
     def btn(e):
         if not un.value or not psw.value:
@@ -7,15 +9,22 @@ def main(page: ft.Page):
             d.open=True
             page.update()
         else:
-            page.clean()
-            page.add(ft.Text(f"Hello, {un.value}, {psw.value}!"))
+            cursor.execute("SELECT login, password FROM users WHERE login=%s AND password=%d",(un.value,psw.value))
+            row=cursor.fetchone()
+            if row:
+                if row[0]==un.value and row[1]==psw.value:
+                    page.clean()
+                    page.add(ft.Text(f"Hello, {row[0]}, {psw.value}!"))
+            else:
+                page.dialog=b
+                b.open=True
+                page.update()
 
 
-    
     page.title = "Информационная система"
     page.bgcolor="blue"
     d=ft.AlertDialog(title=ft.Text("Пожалуйста введите логин или пароль",color="white"), bgcolor="pink")
-   
+    b=ft.AlertDialog(title=ft.Text("Неверный логин или пароль",color="white"), bgcolor="pink")
     un=ft.TextField(
         label="Введите имя пользователя",
         hint_text="Логин",
@@ -32,10 +41,8 @@ def main(page: ft.Page):
         width=200,
         password=True,
         can_reveal_password=True)
-    
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-
     btn=ft.ElevatedButton(text="Войти", on_click=btn, icon=ft.icons.ANCHOR_OUTLINED)
     page.add(ft.Container(
         ft.Stack([
