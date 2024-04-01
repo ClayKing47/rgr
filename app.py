@@ -57,21 +57,27 @@ class cargo():
                 ft.Container(content=btn,top=140,left=175),],)
                 ,width=450,height=200,bgcolor="white",border_radius=10))
 
-    def list(page: ft.Page):
-        page.title="main"
-        page.bgcolor='blue'
-        page.window_height=600
-        page.window_width=800
-        lv = ft.ListView(expand=True, spacing=3)
-        cursor.execute("SELECT * FROM ORDERS")
-        for row in cursor:
-            lv.controls.append(ft.Container(ft.Text(f"{row[4]}, {row[2]}"),border=ft.border.all(2,'black')))
-        page.add(ft.Row(controls=[ft.TextField(label="Вес"),ft.TextField(label="Страна происхождения")]),
-                 ft.Row(controls=[ft.TextField(label="Дата", input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9]{2}/[0-9]{2}/[0-9]{4}", replacement_string="")),ft.ElevatedButton("Добавить в базу")]),
-                 ft.Container(content=lv,width=550,height=500,border=ft.border.all(3,'yellow'),border_radius=8))
-        conn.close()
-        page.update()
+        def list(page: ft.Page):
+            page.title="main"
+            page.bgcolor='blue'
+            page.window_height=600
+            page.window_width=800
+            lv = ft.ListView(expand=True, spacing=3)
+            cursor.execute("SELECT * FROM ORDERS")
+            for row in cursor:
+                lv.controls.append(ft.Container(ft.Text(f"{row[4]}, {row[2]}"),border=ft.border.all(2,'black')))
+            page.add(ft.Row(controls=[ft.TextField(label="Вес"),ft.TextField(label="Страна происхождения")]),
+                     ft.Row(controls=[ft.TextField(label="Дата", input_filter=ft.InputFilter(allow=True, regex_string=r"", replacement_string="")),ft.ElevatedButton(text="Добавить в базу",on_click=add_car)]),
+                     ft.Container(content=lv,width=550,height=500,border=ft.border.all(3,'yellow'),border_radius=8))
+            conn.close()
+            page.update()
         
+    
+            def add_car(page: ft.Page,e):
+                c=ft.AlertDialog(title=ft.Text("Данные добавлены",color="white"), bgcolor="pink")
+                page.dialog=c
+                c.open=True
+                page.update()
 
 
 ft.app(target=cargo.main)
